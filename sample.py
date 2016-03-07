@@ -17,6 +17,8 @@ def main():
                        help='number of characters to sample')
     parser.add_argument('--prime', type=str, default=' ',
                        help='prime text')
+    parser.add_argument('-t', type=float, default=1.0,
+                       help='temperature for scaling weights')
     args = parser.parse_args()
     sample(args)
 
@@ -32,7 +34,7 @@ def sample(args):
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-            print model.sample(sess, chars, vocab, args.n, args.prime)
+            print model.sample(sess, chars, vocab, args.n, args.prime, args.t)
 
 if __name__ == '__main__':
     main()
