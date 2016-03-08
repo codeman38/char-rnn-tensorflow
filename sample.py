@@ -19,6 +19,9 @@ def main():
                        help='prime text')
     parser.add_argument('-t', type=float, default=1.0,
                        help='temperature for scaling weights')
+    parser.add_argument('--vogon', type=float, default=1.0,
+                       help='"vogonity": threshold above which probabilities '
+                            'should be reset to 0 for intentionally bad text')
     args = parser.parse_args()
     sample(args)
 
@@ -34,7 +37,7 @@ def sample(args):
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-            print model.sample(sess, chars, vocab, args.n, args.prime, args.t)
+            print model.sample(sess, chars, vocab, args.n, args.prime, args.t, args.vogon)
 
 if __name__ == '__main__':
     main()
