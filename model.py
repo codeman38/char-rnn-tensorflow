@@ -87,7 +87,7 @@ class Model():
         tf.summary.histogram('loss', loss)
         tf.summary.scalar('train_loss', self.cost)
 
-    def sample(self, sess, chars, vocab, num=200, prime='The ', sampling_type=1):
+    def sample(self, sess, chars, vocab, num=200, prime='The ', sampling_type=1, temperature=1.0, vogonity=1.0):
         state = sess.run(self.cell.zero_state(1, tf.float32))
         for char in prime[:-1]:
             x = np.zeros((1, 1))
@@ -96,8 +96,13 @@ class Model():
             [state] = sess.run([self.final_state], feed)
 
         def weighted_pick(weights):
-            t = np.cumsum(weights)
-            s = np.sum(weights)
+            scaled_weights = np.exp(np.log(weights)/temperature)
+            if vogonity < 1.0:
+                threshold = np.sum(scaled_weights)*vogonity
+                scaled_weights = np.vectorize(
+                    lambda x: x if x <= threshold else 0.0)(scaled_weights)
+            t = np.cumsum(scaled_weights)
+            s = np.sum(scaled_weights)
             return(int(np.searchsorted(t, np.random.rand(1)*s)))
 
         ret = prime

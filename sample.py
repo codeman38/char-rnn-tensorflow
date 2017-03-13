@@ -22,7 +22,11 @@ def main():
     parser.add_argument('--sample', type=int, default=1,
                         help='0 to use max at each timestep, 1 to sample at '
                              'each timestep, 2 to sample on spaces')
-
+    parser.add_argument('-t', type=float, default=1.0,
+                       help='temperature for scaling weights')
+    parser.add_argument('--vogon', type=float, default=1.0,
+                       help='"vogonity": threshold above which probabilities '
+                            'should be reset to 0 for intentionally bad text')
     args = parser.parse_args()
     sample(args)
 
@@ -40,7 +44,7 @@ def sample(args):
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
             print(model.sample(sess, chars, vocab, args.n, args.prime,
-                               args.sample).encode('utf-8'))
+                               args.sample, args.t, args.vogon).encode('utf-8'))
 
 if __name__ == '__main__':
     main()
