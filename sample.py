@@ -4,6 +4,7 @@ import tensorflow as tf
 import argparse
 import os
 from six.moves import cPickle
+from six import PY2
 
 from model import Model
 
@@ -43,8 +44,9 @@ def sample(args):
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-            print(model.sample(sess, chars, vocab, args.n, args.prime,
-                               args.sample, args.t, args.vogon).encode('utf-8'))
+            sample = model.sample(sess, chars, vocab, args.n, args.prime,
+                                  args.sample, args.t, args.vogon)
+            print(sample.encode('utf-8') if PY2 else sample)
 
 if __name__ == '__main__':
     main()
