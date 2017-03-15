@@ -105,7 +105,8 @@ class Model():
             s = np.sum(scaled_weights)
             return(int(np.searchsorted(t, np.random.rand(1)*s)))
 
-        ret = prime
+        for char in prime:
+            yield char
         char = prime[-1]
         for n in range(num):
             x = np.zeros((1, 1))
@@ -124,7 +125,5 @@ class Model():
             else:  # sampling_type == 1 default:
                 sample = weighted_pick(p)
 
-            pred = chars[sample]
-            ret += pred
-            char = pred
-        return ret
+            char = chars[sample]
+            yield char
