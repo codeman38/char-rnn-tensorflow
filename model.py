@@ -96,12 +96,13 @@ class Model():
             [state] = sess.run([self.final_state], feed)
 
         def weighted_pick(weights):
+            old_err = np.seterr(divide='ignore')
             if temperature != 1.0:
-                weights = np.where(
-                    weights > 0, np.exp(np.log(weights)/temperature), 0)
+                weights = np.exp(np.log(weights)/temperature)
             if vogonity < 1.0:
                 threshold = np.sum(weights)*vogonity
                 weights = np.where(weights <= threshold, weights, 0)
+            np.seterr(**old_err)
             t = np.cumsum(weights)
             s = np.sum(weights)
             return(int(np.searchsorted(t, np.random.rand(1)*s)))
