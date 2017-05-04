@@ -28,6 +28,8 @@ def main():
     parser.add_argument('--vogon', type=float, default=1.0,
                        help='"vogonity": threshold above which probabilities '
                             'should be reset to 0 for intentionally bad text')
+    parser.add_argument('-a', '--all', action='store_true',
+                       help='use all checkpoints defined in model')
     args = parser.parse_args()
     sample(args)
 
@@ -42,12 +44,24 @@ def sample(args):
         tf.global_variables_initializer().run()
         saver = tf.train.Saver(tf.global_variables())
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            saver.restore(sess, ckpt.model_checkpoint_path)
-            for ch in model.sample(sess, chars, vocab, args.n, args.prime,
-                                   args.sample, args.t, args.vogon):
-                print(ch.encode('utf-8') if PY2 else ch, end='')
-            print()
+        if args.all:
+            if ckpt and ckpt.all_model_checkpoint_paths:
+                for path in ckpt.all_model_checkpoint_paths:
+                    print('=== {0} ==='.format(path))
+                    saver.restore(sess, path)
+                    _output_text(sess, model, chars, vocab, args.n,
+                                 args.prime, args.sample, args.t, args.vogon)
+                    print()
+        else:
+            if ckpt and ckpt.model_checkpoint_path:
+                saver.restore(sess, ckpt.model_checkpoint_path)
+                _output_text(sess, model, chars, vocab, args.n, args.prime,
+                             args.sample, args.t, args.vogon)
+
+def _output_text(sess, model, chars, vocab, n, prime, stype, t, vogon):
+    for ch in model.sample(sess, chars, vocab, n, prime, stype, t, vogon):
+        print(ch.encode('utf-8') if PY2 else ch, end='')
+    print()
 
 if __name__ == '__main__':
     main()
