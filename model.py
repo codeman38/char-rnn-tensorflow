@@ -122,7 +122,7 @@ class Model():
             if sampling_type == 0:
                 sample = np.argmax(p)
             elif sampling_type == 2:
-                if char == ' ':
+                if char in ' \n\t':
                     sample = weighted_pick(p)
                 else:
                     sample = np.argmax(p)
